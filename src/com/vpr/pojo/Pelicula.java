@@ -1,18 +1,18 @@
 package com.vpr.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Pelicula {
+public class Pelicula implements Serializable{
 	
 	
 	
 	//Atributos
+	private int id;
 	private String titulo;
 	private String sinopsis;
-	private String[] genero;
-	private enum Rating{
-		RA, R7, R2, R16, R18, RX;
-	}
+	private static String[] genero = {"", "Drama"};
+	private static String[] rating = {"", "A", "7", "12", "16", "18", "X"};
 	private String director;
 	private Date fechaEstreno;
 	private Date fechaVista;
@@ -23,11 +23,19 @@ public class Pelicula {
 	private String notas;
 	private boolean vista;
 	
-	
+	private static int cont;
 	//Constructor
 	public Pelicula() {
-		
+		cont++;
+		id = cont;
 	}
 	
 	//Metodos
+	public static String[] getGenero() {
+		return genero;
+	}
+	
+	public static String[] getRating() {
+		return rating;
+	}
 }
