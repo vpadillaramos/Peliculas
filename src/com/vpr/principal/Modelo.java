@@ -11,12 +11,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.vpr.pojo.Pelicula;
 
 public class Modelo {
 	
 	//Atributos
 	private HashMap<Integer, Pelicula> hmPeliculas;
+	private Pelicula peliculaBorrada = null;
 	
 	//Constructor
 	public Modelo() throws FileNotFoundException, ClassNotFoundException, IOException {
@@ -38,6 +41,7 @@ public class Modelo {
 	}
 	
 	public void borrarPelicula(Pelicula pelicula) throws FileNotFoundException, IOException {
+		peliculaBorrada = pelicula;
 		hmPeliculas.remove(pelicula.getId(), pelicula);
 		guardarDisco();
 	}
@@ -64,5 +68,23 @@ public class Modelo {
 		deserializador = new ObjectInputStream(new FileInputStream("peliculas.dat"));
 		hmPeliculas = (HashMap<Integer, Pelicula>) deserializador.readObject();
 		deserializador.close();
+	}
+	
+	public void deshacerBorrado() throws FileNotFoundException, IOException {
+		if(peliculaBorrada == null)
+			return;
+		hmPeliculas.put(peliculaBorrada.getId(), peliculaBorrada);
+		guardarDisco();
+	}
+	
+	public void alertaBorrarTodo() throws FileNotFoundException, IOException {
+		if(hmPeliculas.isEmpty())
+			return;
+		int ventana = JOptionPane.showConfirmDialog(null, "¿Quieres borrar todos los datos?", "¡ATENCIÓN!", JOptionPane.YES_NO_OPTION);
+		if(ventana == JOptionPane.NO_OPTION || ventana == JOptionPane.CLOSED_OPTION) 
+			return;
+		peliculaBorrada = null; //si despues de borrar todo le da a deshacer borrado no recuperara si borro solo 1 pelicula antes
+		hmPeliculas.clear();
+		guardarDisco();
 	}
 }

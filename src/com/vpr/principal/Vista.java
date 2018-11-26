@@ -59,6 +59,9 @@ public class Vista extends JFrame {
 	public JPanel panBasico;
 	public JPanel panAvanzado;
 	public JCheckBox chbAvanzado;
+	public JButton btDeshacer;
+	public JButton btBorrarTodo;
+	public JCheckBox chbAdicionRapida;
 	
 	
 	public Vista() {
@@ -214,6 +217,21 @@ public class Vista extends JFrame {
 		chbAvanzado.setActionCommand("detallesAvanzados");
 		chbAvanzado.setBounds(332, 267, 135, 23);
 		getContentPane().add(chbAvanzado);
+		
+		btDeshacer = new JButton("Deshacer borrado");
+		btDeshacer.setActionCommand("deshacer");
+		btDeshacer.setBounds(528, 333, 119, 23);
+		getContentPane().add(btDeshacer);
+		
+		btBorrarTodo = new JButton("Borrar todo");
+		btBorrarTodo.setActionCommand("borrarTodo");
+		btBorrarTodo.setBounds(528, 383, 119, 23);
+		getContentPane().add(btBorrarTodo);
+		
+		chbAdicionRapida = new JCheckBox("Adici\u00F3n r\u00E1pida");
+		chbAdicionRapida.setActionCommand("adicionRapida");
+		chbAdicionRapida.setBounds(332, 299, 119, 23);
+		getContentPane().add(chbAdicionRapida);
 		
 		setVisible(true);
 	}

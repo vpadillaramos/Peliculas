@@ -2,6 +2,8 @@ package com.vpr.principal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -24,7 +26,7 @@ import com.vpr.modales.Sinopsis;
 import com.vpr.pojo.Pelicula;
 import com.vpr.util.Util;
 
-public class Controlador implements ActionListener, MouseListener, ListSelectionListener{
+public class Controlador implements ActionListener, MouseListener, ListSelectionListener, KeyListener{
 	
 	//Constantes
 	private final String DEFAULT_PORTADA = "default.png";
@@ -85,12 +87,16 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 		vista.btEditar.addActionListener(this);
 		vista.btGuardar.addActionListener(this);
 		vista.btNueva.addActionListener(this);
+		vista.btDeshacer.addActionListener(this);
+		vista.btBorrarTodo.addActionListener(this);
 		
 		vista.btSinopsis.addActionListener(this);
 		vista.btNotas.addActionListener(this);
 		vista.chbAvanzado.addActionListener(this);
 		
 		vista.listPeliculas.addListSelectionListener(this);
+		
+		vista.tfTitulo.addKeyListener(this);
 	}
 	
 	public void modoEdicion(boolean editando) {
@@ -141,6 +147,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			vista.lbPortada.removeMouseListener(this);
 			
 			vista.listPeliculas.setEnabled(!editando);
+			vista.listPeliculas.clearSelection();
 		}
 	}
 	
@@ -293,7 +300,10 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			
 			Util.mensajeInformacion("Guardado", "Película guardada correctamente");
 			limpiar();
-			modoEdicion(false);
+			if(vista.chbAdicionRapida.isSelected()) 
+				vista.tfTitulo.requestFocus();
+			else
+				modoEdicion(false);
 			
 			break;
 		case "btSinopsis":
@@ -301,6 +311,31 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			break;
 		case "btNotas":
 			notas = escribirNotas();
+			break;
+		case "deshacer":
+			try {
+				modelo.deshacerBorrado();
+				refrescarLista();
+			} catch (FileNotFoundException e1) {
+				Util.mensajeError("No se encontró almacenamiento");
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				Util.mensajeError("No se pudo acceder al almacenamiento");
+				e1.printStackTrace();
+			}
+			break;
+		
+		case "borrarTodo":
+			try {
+				modelo.alertaBorrarTodo();
+				refrescarLista();
+			} catch (FileNotFoundException e1) {
+				Util.mensajeError("No se encontró almacenamiento");
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				Util.mensajeError("No se pudo acceder al almacenamiento");
+				e1.printStackTrace();
+			}
 			break;
 		default:
 			
@@ -347,5 +382,22 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			return;
 		vista.btEditar.setEnabled(true);
 		vista.btBorrar.setEnabled(true);
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		//TODO se pulsa otra vez despues de guardar y salta mensaje error
+		if(vista.btGuardar.isEnabled() && e.getKeyCode() == KeyEvent.VK_ENTER)
+			vista.btGuardar.doClick();
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
 	}
 }
