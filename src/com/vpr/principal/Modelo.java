@@ -16,32 +16,38 @@ import com.vpr.pojo.Pelicula;
 public class Modelo {
 	
 	//Atributos
-	private HashMap<String, Pelicula> hmPeliculas;
+	private HashMap<Integer, Pelicula> hmPeliculas;
 	
 	//Constructor
 	public Modelo() throws FileNotFoundException, ClassNotFoundException, IOException {
 		if(new File("peliculas.dat").exists())
 			leerDisco();
 		else
-			hmPeliculas = new HashMap<>();
+			hmPeliculas = new HashMap<Integer, Pelicula>();
 	}
 	
 	//Metodos
-	public void anadirPelicula(Pelicula pelicula) throws FileNotFoundException, IOException {
-		hmPeliculas.put(pelicula.toString(), pelicula);
+	public void guardarPelicula(Pelicula pelicula) throws FileNotFoundException, IOException {
+		int i = 0;
+		do {
+			i++;
+		}while(hmPeliculas.containsKey(i));
+		pelicula.setId(i);
+		hmPeliculas.put(pelicula.getId(), pelicula);
 		guardarDisco();
 	}
 	
-	public void borrarPelicula(Pelicula pelicula) {
-		
+	public void borrarPelicula(Pelicula pelicula) throws FileNotFoundException, IOException {
+		hmPeliculas.remove(pelicula.getId(), pelicula);
+		guardarDisco();
 	}
 	
-	public void modificarPelicual(Pelicula pelicula) {
+	public void modificarPelicula(Pelicula pelicula) {
 		
 	}
 	
 	public ArrayList<Pelicula> getPeliculas() {
-		return null;
+		return new ArrayList<Pelicula>(hmPeliculas.values());
 	}
 	
 	public void guardarDisco() throws FileNotFoundException, IOException {
@@ -56,7 +62,7 @@ public class Modelo {
 		ObjectInputStream deserializador = null;
 		
 		deserializador = new ObjectInputStream(new FileInputStream("peliculas.dat"));
-		hmPeliculas = (HashMap<String, Pelicula>) deserializador.readObject();
+		hmPeliculas = (HashMap<Integer, Pelicula>) deserializador.readObject();
 		deserializador.close();
 	}
 }

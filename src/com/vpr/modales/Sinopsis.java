@@ -9,12 +9,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JTextArea;
+
+import com.vpr.principal.Controlador;
+
 import javax.swing.JScrollPane;
 
 public class Sinopsis extends JDialog implements ActionListener{
 	
 	//Atributos
-	private String sinopsis;
+	private static String sinopsis;
 	
 	//Componentes
 	public JLabel lbSinopsis;
@@ -55,6 +58,7 @@ public class Sinopsis extends JDialog implements ActionListener{
 		taSinopsis = new JTextArea();
 		taSinopsis.setLineWrap(true);
 		taSinopsis.setWrapStyleWord(true);
+		taSinopsis.setText(sinopsis); //se muestra la sinopsis escrita antes de guardar pelicula
 		sp.setViewportView(taSinopsis);
 		
 		//Listeners
@@ -73,6 +77,7 @@ public class Sinopsis extends JDialog implements ActionListener{
 		switch(e.getActionCommand()) {
 		case "guardar":
 			sinopsis = taSinopsis.getText();
+			setVisible(false);
 			break;
 		case "salir":
 			setVisible(false);

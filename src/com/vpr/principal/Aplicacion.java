@@ -8,9 +8,11 @@ import com.vpr.util.Util;
 public class Aplicacion {
 	public static void main(String[] args) {
 		try {
+			
 			Modelo modelo = new Modelo();
 			Vista vista = new Vista();
 			Controlador controlador = new Controlador(modelo, vista);
+			
 		} catch (FileNotFoundException e) {
 			Util.mensajeError("No se encontró almacenamiento");
 			e.printStackTrace();
