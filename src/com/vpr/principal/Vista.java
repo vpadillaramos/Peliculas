@@ -1,12 +1,8 @@
 package com.vpr.principal;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SpringLayout;
-import javax.swing.border.EmptyBorder;
 
 import com.vpr.pojo.Pelicula;
 
@@ -20,9 +16,12 @@ import javax.swing.JList;
 import javax.swing.JCheckBox;
 import com.toedter.calendar.JDateChooser;
 import javax.swing.border.TitledBorder;
-import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.util.ArrayList;
+
 import javax.swing.UIManager;
+
+import com.mxrck.autocompleter.TextAutoCompleter;
 
 public class Vista extends JFrame {
 	//Componentes
@@ -62,6 +61,9 @@ public class Vista extends JFrame {
 	public JButton btDeshacer;
 	public JButton btBorrarTodo;
 	public JCheckBox chbAdicionRapida;
+	public JLabel lbBuscar;
+	public JTextField tfBuscar;
+	public TextAutoCompleter tac;
 	
 	
 	public Vista() {
@@ -233,6 +235,23 @@ public class Vista extends JFrame {
 		chbAdicionRapida.setBounds(332, 299, 119, 23);
 		getContentPane().add(chbAdicionRapida);
 		
+		lbBuscar = new JLabel("Buscar");
+		lbBuscar.setBounds(351, 371, 54, 14);
+		getContentPane().add(lbBuscar);
+		
+		tfBuscar = new JTextField();
+		tfBuscar.setActionCommand("buscar");
+		tfBuscar.setBounds(332, 404, 127, 20);
+		getContentPane().add(tfBuscar);
+		tfBuscar.setColumns(10);
+		tac = new TextAutoCompleter(tfBuscar);
+		tac.setMode(0); //busca una subcadena
+		tac.setCaseSensitive(false);
+		
 		setVisible(true);
+	}
+	
+	public void anadirBuscar(String titulo) {
+		tac.addItem(titulo);
 	}
 }

@@ -5,8 +5,6 @@ import java.util.Date;
 
 public class Pelicula implements Serializable{
 	
-	
-	
 	//Atributos
 	private int id;
 	private String titulo;
@@ -23,6 +21,7 @@ public class Pelicula implements Serializable{
 	private float nota;
 	private String notas;
 	private boolean vista;
+	
 	//Constructor
 	public Pelicula() {
 		

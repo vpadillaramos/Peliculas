@@ -65,6 +65,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 		
 		for(Pelicula pelicula: modelo.getPeliculas()) {
 			vista.modeloPelicula.addElement(pelicula);
+			vista.anadirBuscar(pelicula.getTitulo());
 		}
 	}
 	
