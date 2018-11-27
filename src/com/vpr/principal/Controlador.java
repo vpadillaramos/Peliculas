@@ -34,8 +34,10 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 	//Atributos
 	private Modelo modelo;
 	private Vista vista;
-	private String sinopsis, notas;
+	private String sinopsisPelicula, notasPelicula;
 	private File ficheroSeleccionado;
+	private Sinopsis sinopsis;
+	private Nota nota;
 	
 	public Controlador(Modelo modelo, Vista vista) {
 		this.modelo = modelo;
@@ -153,13 +155,13 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 	}
 	
 	public String escribirSinopsis() {
-		Sinopsis sinopsis = new Sinopsis();
+		sinopsis = new Sinopsis();
 		sinopsis.ponerVisible(true);
 		return sinopsis.getSinopsis();
 	}
 	
 	public String escribirNotas() {
-		Nota nota = new Nota();
+		nota = new Nota();
 		nota.ponerVisible(true);
 		return nota.getNotas();
 	}
@@ -178,7 +180,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			modoEdicion(false);
 			break;
 		case "editar":
-			
+			modoEdicion(true);
 			break;
 		case "nueva":
 			modoEdicion(true);
@@ -229,12 +231,12 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			Pelicula pelicula = new Pelicula();
 			
 			pelicula.setTitulo(vista.tfTitulo.getText());
-			pelicula.setSinopsis(sinopsis);
+			pelicula.setSinopsis(sinopsisPelicula);
 			pelicula.setGenero(vista.cbGenero.getSelectedIndex());
 			pelicula.setRating(vista.cbRating.getSelectedIndex());
 			pelicula.setDirector(vista.tfDirector.getText());
 			pelicula.setDuracion(Integer.parseInt(vista.tfDuracion.getText()));
-			pelicula.setNotas(notas);
+			pelicula.setNotas(notasPelicula);
 			pelicula.setVista(vista.chbVista.isSelected());
 			
 			
@@ -308,10 +310,10 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			
 			break;
 		case "btSinopsis":
-			sinopsis = escribirSinopsis();
+			sinopsisPelicula = escribirSinopsis();
 			break;
 		case "btNotas":
-			notas = escribirNotas();
+			notasPelicula = escribirNotas();
 			break;
 		case "deshacer":
 			try {
@@ -381,6 +383,14 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 	public void valueChanged(ListSelectionEvent e) {
 		if(vista.listPeliculas.getSelectedIndex() == -1)
 			return;
+		
+		//Muestro los datos
+		vista.tfTitulo.setText(vista.listPeliculas.getSelectedValue().getTitulo());
+		sinopsis.taSinopsis.setText(vista.listPeliculas.getSelectedValue().getSinopsis());
+		//vista.cbGenero.setSelectedIndex(); TODO
+		vista.chbVista.setSelected(vista.listPeliculas.getSelectedValue().isVista());
+		
+		
 		vista.btEditar.setEnabled(true);
 		vista.btBorrar.setEnabled(true);
 	}

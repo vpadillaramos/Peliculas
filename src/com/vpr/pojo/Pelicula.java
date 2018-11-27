@@ -1,6 +1,7 @@
 package com.vpr.pojo;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 
 public class Pelicula implements Serializable{
@@ -48,9 +49,16 @@ public class Pelicula implements Serializable{
 		return genero;
 	}
 	
+	public int getPosGenero(String genero) {
+		Arrays.sort(aGenero);
+		return Arrays.binarySearch(aGenero, genero);
+	}
+	
 	public void setGenero(int i) {
 		genero = aGenero[i];
 	}
+	//TODO
+	//public int getPosRating(String )
 	
 	public String getRating() {
 		return rating;

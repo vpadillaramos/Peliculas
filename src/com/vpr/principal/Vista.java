@@ -17,7 +17,6 @@ import javax.swing.JCheckBox;
 import com.toedter.calendar.JDateChooser;
 import javax.swing.border.TitledBorder;
 import java.awt.Color;
-import java.util.ArrayList;
 
 import javax.swing.UIManager;
 

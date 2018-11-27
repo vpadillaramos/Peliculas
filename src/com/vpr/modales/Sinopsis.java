@@ -91,4 +91,8 @@ public class Sinopsis extends JDialog implements ActionListener{
 	public String getSinopsis() {
 		return sinopsis;
 	}
+	
+	public void setSinopsis(String sinopsis) {
+		this.sinopsis = sinopsis;
+	}
 }
