@@ -30,30 +30,60 @@ public class Modelo {
 	}
 	
 	//Metodos
+	/**
+	 * Guarda Pelicula en un HashMap y graba los cambios en el fichero 
+	 * @param pelicula
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public void guardarPelicula(Pelicula pelicula) throws FileNotFoundException, IOException {
-		int i = 0;
-		do {
-			i++;
-		}while(hmPeliculas.containsKey(i));
-		pelicula.setId(i);
+		if(hmPeliculas.size() == 0)
+			pelicula.setId(0);
+		else {
+			ArrayList<Pelicula> lista = getPeliculas();
+			pelicula.setId(lista.get(lista.size()-1).getId()+1);
+		}
+		
 		hmPeliculas.put(pelicula.getId(), pelicula);
 		guardarDisco();
 	}
 	
+	/**
+	 * Borra Pelicula de un HashMap y graba los cambios en el fichero
+	 * @param pelicula
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public void borrarPelicula(Pelicula pelicula) throws FileNotFoundException, IOException {
-		peliculaBorrada = pelicula;
+		peliculaBorrada = pelicula; //antes de borrarla la guardo en una variable para poder recuperarla si se quisiera
 		hmPeliculas.remove(pelicula.getId(), pelicula);
 		guardarDisco();
 	}
 	
-	public void modificarPelicula(Pelicula pelicula) {
-		
+	/**
+	 * Reemplaza Pelicula por la pasada por parametro. Tienen la misma Id
+	 * @param pelicula
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void modificarPelicula(Pelicula pelicula) throws FileNotFoundException, IOException {
+		hmPeliculas.replace(pelicula.getId(), pelicula);
+		guardarDisco();
 	}
 	
+	/**
+	 * Devuelve un ArrayList con todas las peliculas almacenadas
+	 * @return
+	 */
 	public ArrayList<Pelicula> getPeliculas() {
 		return new ArrayList<Pelicula>(hmPeliculas.values());
 	}
 	
+	/**
+	 * Guarda en el fichero "peliculas.dat" de forma serializada
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public void guardarDisco() throws FileNotFoundException, IOException {
 		ObjectOutputStream serializador = null;
 		
@@ -62,6 +92,12 @@ public class Modelo {
 		serializador.close();
 	}
 	
+	/**
+	 * Obtiene los datos del fichero "peliculas.dat" deserializandolos
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public void leerDisco() throws FileNotFoundException, IOException, ClassNotFoundException {
 		ObjectInputStream deserializador = null;
 		
@@ -70,6 +106,11 @@ public class Modelo {
 		deserializador.close();
 	}
 	
+	/**
+	 * Obtiene la ultima pelicula borrada y la guarda en el fichero
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	public void deshacerBorrado() throws FileNotFoundException, IOException {
 		if(peliculaBorrada == null)
 			return;
@@ -77,7 +118,12 @@ public class Modelo {
 		guardarDisco();
 	}
 	
-	public void alertaBorrarTodo() throws FileNotFoundException, IOException {
+	/**
+	 * Borra el HashMap que contiene todas las peliculas y guarda los cambios en el fichero
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void borrarTodo() throws FileNotFoundException, IOException {
 		if(hmPeliculas.isEmpty())
 			return;
 		int ventana = JOptionPane.showConfirmDialog(null, "¿Quieres borrar todos los datos?", "¡ATENCIÓN!", JOptionPane.YES_NO_OPTION);

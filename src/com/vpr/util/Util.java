@@ -7,11 +7,14 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.Random;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class Util {
@@ -52,6 +55,26 @@ public class Util {
 				new File(System.getProperty("user.dir") + File.separator + "portadas" + File.separator + nombreImagen)
 				);
 		Files.copy(origen, destino);
+	}
+	
+	public static void backup() {
+		File origen = new File("peliculas.dat");
+		File destino;
+		
+		//Selecciono el directorio de destino
+		JFileChooser fc = new JFileChooser();
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fc.setAcceptAllFileFilterUsed(false);
+		if(fc.showOpenDialog(null) == JFileChooser.CANCEL_OPTION)
+			return;
+		Path aux = Paths.get(fc.getSelectedFile().toString() + "//peliculas.dat");
+		destino = aux.toFile();
+		try {
+			Files.copy(origen.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e1) {
+			Util.mensajeError("No pudo copiarse el fichero");
+			e1.printStackTrace();
+		}
 	}
 	
 	//Metodo que devuelve un numero entero aleatorio

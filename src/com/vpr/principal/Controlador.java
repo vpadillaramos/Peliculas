@@ -7,12 +7,22 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -34,10 +44,11 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 	//Atributos
 	private Modelo modelo;
 	private Vista vista;
-	private String sinopsisPelicula, notasPelicula;
+	private boolean editar;
 	private File ficheroSeleccionado;
-	private Sinopsis sinopsis;
-	private Nota nota;
+	private String sinopsisPelicula, notasPelicula;
+	private Sinopsis sinopsis = new Sinopsis();
+	private Nota nota = new Nota();
 	
 	public Controlador(Modelo modelo, Vista vista) {
 		this.modelo = modelo;
@@ -82,6 +93,10 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 		
 		vista.dcFechaEstreno.setDate(null);
 		vista.dcFechaVista.setDate(null);
+		vista.lbPortada.setIcon(null);
+		
+		sinopsis.taSinopsis.setText("");
+		nota.taNotas.setText("");
 	}
 	
 	public void addListeners() {
@@ -92,6 +107,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 		vista.btNueva.addActionListener(this);
 		vista.btDeshacer.addActionListener(this);
 		vista.btBorrarTodo.addActionListener(this);
+		vista.btGuardarComo.addActionListener(this);
 		
 		vista.btSinopsis.addActionListener(this);
 		vista.btNotas.addActionListener(this);
@@ -99,7 +115,8 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 		
 		vista.listPeliculas.addListSelectionListener(this);
 		
-		vista.tfTitulo.addKeyListener(this);
+		vista.panBasico.addKeyListener(this);
+		vista.panAvanzado.addKeyListener(this);
 	}
 	
 	public void modoEdicion(boolean editando) {
@@ -117,7 +134,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			vista.tfDuracion.setEditable(editando);
 			vista.tfNota.setEditable(editando);
 			vista.tfTitulo.setEditable(editando);
-			vista.tfNota.setEnabled(editando);
+			vista.tfNota.setEditable(editando);
 			vista.cbGenero.setEnabled(editando);
 			vista.cbRating.setEnabled(editando);
 			vista.chbVista.setEnabled(editando);
@@ -126,6 +143,11 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			vista.lbPortada.addMouseListener(this);
 			
 			vista.listPeliculas.setEnabled(!editando);
+			
+			sinopsis.taSinopsis.setEditable(editando);
+			sinopsis.btGuardar.setEnabled(editando);
+			nota.taNotas.setEditable(editando);
+			nota.btGuardar.setEnabled(editando);
 		}
 		else {
 			vista.btCancelar.setEnabled(editando);
@@ -141,7 +163,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			vista.tfDuracion.setEditable(editando);
 			vista.tfNota.setEditable(editando);
 			vista.tfTitulo.setEditable(editando);
-			vista.tfNota.setEnabled(editando);
+			vista.tfNota.setEditable(editando);
 			vista.cbGenero.setEnabled(editando);
 			vista.cbRating.setEnabled(editando);
 			vista.chbVista.setEnabled(editando);
@@ -151,17 +173,20 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			
 			vista.listPeliculas.setEnabled(!editando);
 			vista.listPeliculas.clearSelection();
+			
+			sinopsis.taSinopsis.setEditable(editando);
+			sinopsis.btGuardar.setEnabled(editando);
+			nota.taNotas.setEditable(editando);
+			nota.btGuardar.setEnabled(editando);
 		}
 	}
 	
 	public String escribirSinopsis() {
-		sinopsis = new Sinopsis();
 		sinopsis.ponerVisible(true);
 		return sinopsis.getSinopsis();
 	}
 	
 	public String escribirNotas() {
-		nota = new Nota();
 		nota.ponerVisible(true);
 		return nota.getNotas();
 	}
@@ -180,10 +205,14 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			modoEdicion(false);
 			break;
 		case "editar":
+			editar = true;
 			modoEdicion(true);
 			break;
 		case "nueva":
+			editar = false;
 			modoEdicion(true);
+			vista.listPeliculas.clearSelection();
+			limpiar();
 			vista.tfTitulo.requestFocus();
 			break;
 		case "borrar":
@@ -199,6 +228,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			}
 			
 			refrescarLista();
+			limpiar();
 			modoEdicion(false);
 			break;
 		case "guardar":
@@ -226,8 +256,12 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 				vista.tfNota.selectAll();
 				return;
 			}
-				
 			
+			if(sinopsisPelicula == null)
+				sinopsisPelicula = "";
+			if(notasPelicula == null)
+				notasPelicula = "";
+				
 			Pelicula pelicula = new Pelicula();
 			
 			pelicula.setTitulo(vista.tfTitulo.getText());
@@ -253,17 +287,13 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 				pelicula.setNota(Float.parseFloat(vista.tfNota.getText()));
 			
 			//Fechas
-			String fechaEstreno;
-			String fechaVista;
-			Locale fCastellano = new Locale("es","Es","Traditional.win");
-			if(vista.dcFechaEstreno.getDate() == null)
-				fechaEstreno = "";
-			else
-				fechaEstreno = DateFormat.getDateInstance(DateFormat.SHORT, fCastellano).format(vista.dcFechaEstreno.getDate());
-			if(vista.dcFechaVista.getDate() == null)
-				fechaVista = "";
-			else
-				fechaVista = DateFormat.getDateInstance(DateFormat.SHORT, fCastellano).format(vista.dcFechaVista.getDate());
+			Date fechaEstreno = null;
+			Date fechaVista = null;
+			
+			if(vista.dcFechaEstreno.getDate() != null)
+				fechaEstreno = vista.dcFechaEstreno.getDate();
+			if(vista.dcFechaVista.getDate() != null)
+				fechaVista = vista.dcFechaVista.getDate();
 			
 			pelicula.setFechaEstreno(fechaEstreno);
 			pelicula.setFechaVista(fechaVista);
@@ -275,7 +305,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 				
 				try {
 					Util.copiarImagen(ficheroSeleccionado.getAbsolutePath(), nombreImagen);
-					pelicula.setPortada(ficheroSeleccionado.getAbsolutePath() + File.separator + nombreImagen);
+					pelicula.setPortada(nombreImagen);
 				} catch (IOException e1) {
 					Util.mensajeError("No se puedo copiar la imagen");
 					e1.printStackTrace();
@@ -290,7 +320,13 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 			
 			//GUARDA PELICULA
 			try {
-				modelo.guardarPelicula(pelicula);
+				if(editar) {
+					pelicula.setId(vista.listPeliculas.getSelectedValue().getId());
+					modelo.modificarPelicula(pelicula);
+					editar = false;
+				}
+				else
+					modelo.guardarPelicula(pelicula);
 				refrescarLista();
 			} catch (FileNotFoundException e1) {
 				Util.mensajeError("No se encontró disco de almacenamiento");
@@ -330,7 +366,7 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 		
 		case "borrarTodo":
 			try {
-				modelo.alertaBorrarTodo();
+				modelo.borrarTodo();
 				refrescarLista();
 			} catch (FileNotFoundException e1) {
 				Util.mensajeError("No se encontró almacenamiento");
@@ -339,6 +375,11 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 				Util.mensajeError("No se pudo acceder al almacenamiento");
 				e1.printStackTrace();
 			}
+			break;
+			
+		case "guardarComo":
+			Util.backup();
+			Util.mensajeInformacion("Copia", "Fichero guardado correctamente");
 			break;
 		default:
 			
@@ -384,15 +425,39 @@ public class Controlador implements ActionListener, MouseListener, ListSelection
 		if(vista.listPeliculas.getSelectedIndex() == -1)
 			return;
 		
-		//Muestro los datos
-		vista.tfTitulo.setText(vista.listPeliculas.getSelectedValue().getTitulo());
-		sinopsis.taSinopsis.setText(vista.listPeliculas.getSelectedValue().getSinopsis());
-		//vista.cbGenero.setSelectedIndex(); TODO
-		vista.chbVista.setSelected(vista.listPeliculas.getSelectedValue().isVista());
-		
-		
 		vista.btEditar.setEnabled(true);
 		vista.btBorrar.setEnabled(true);
+		vista.btSinopsis.setEnabled(true);
+		vista.btNotas.setEnabled(true);
+		if(editar) {
+			sinopsis.btGuardar.setEnabled(editar);
+			nota.btGuardar.setEnabled(editar);
+		}
+		else {
+			sinopsis.btGuardar.setEnabled(editar);
+			nota.btGuardar.setEnabled(editar);
+		}
+		
+		//Muestro los datos
+		Pelicula pelicula = vista.listPeliculas.getSelectedValue();
+		vista.tfTitulo.setText(pelicula.getTitulo());
+		sinopsis.taSinopsis.setText(pelicula.getSinopsis());
+		vista.cbGenero.setSelectedItem(pelicula.getGenero());
+		vista.cbRating.setSelectedItem(pelicula.getRating());
+		vista.tfDirector.setText(pelicula.getDirector());
+		
+		
+		if(pelicula.getFechaEstreno() != null)
+			vista.dcFechaEstreno.setDate(pelicula.getFechaEstreno());
+		if(pelicula.getFechaVista() != null)
+			vista.dcFechaVista.setDate(pelicula.getFechaVista());
+		
+		
+		vista.tfDuracion.setText(String.valueOf(pelicula.getDuracion()));
+		vista.lbPortada.setIcon(new ImageIcon("portadas" + File.separator + pelicula.getPortada()));
+		vista.tfNota.setText(String.valueOf(pelicula.getNota()));
+		nota.taNotas.setText(pelicula.getNotas());
+		vista.chbVista.setSelected(pelicula.isVista());
 	}
 
 	@Override

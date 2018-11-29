@@ -86,5 +86,9 @@ public class Nota extends JDialog implements ActionListener{
 	public String getNotas() {
 		return notas;
 	}
+	
+	public void setNotas(String notas) {
+		this.notas = notas;
+	}
 
 }

@@ -15,8 +15,8 @@ public class Pelicula implements Serializable{
 	private static String[] aRating = {"", "A", "7", "12", "16", "18", "X"};
 	private String rating;
 	private String director;
-	private String fechaEstreno;
-	private String fechaVista;
+	private Date fechaEstreno;
+	private Date fechaVista;
 	private int duracion;
 	private String portada;
 	private float nota;
@@ -49,16 +49,9 @@ public class Pelicula implements Serializable{
 		return genero;
 	}
 	
-	public int getPosGenero(String genero) {
-		Arrays.sort(aGenero);
-		return Arrays.binarySearch(aGenero, genero);
-	}
-	
 	public void setGenero(int i) {
 		genero = aGenero[i];
 	}
-	//TODO
-	//public int getPosRating(String )
 	
 	public String getRating() {
 		return rating;
@@ -92,19 +85,19 @@ public class Pelicula implements Serializable{
 		this.director = director;
 	}
 
-	public String getFechaEstreno() {
+	public Date getFechaEstreno() {
 		return fechaEstreno;
 	}
 
-	public void setFechaEstreno(String fechaEstreno) {
+	public void setFechaEstreno(Date fechaEstreno) {
 		this.fechaEstreno = fechaEstreno;
 	}
 
-	public String getFechaVista() {
+	public Date getFechaVista() {
 		return fechaVista;
 	}
 
-	public void setFechaVista(String fechaVista) {
+	public void setFechaVista(Date fechaVista) {
 		this.fechaVista = fechaVista;
 	}
 
@@ -155,6 +148,6 @@ public class Pelicula implements Serializable{
 			aux = "[V]";
 		else
 			aux = "[X]";
-		return aux + " " + titulo + " " + id;
+		return aux + " " + titulo;
 	}
 }
